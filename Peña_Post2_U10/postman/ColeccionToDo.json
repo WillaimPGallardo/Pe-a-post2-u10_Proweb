@@ -1,0 +1,64 @@
+{
+  "info": {
+    "name": "API ToDoApp",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "POST crear tarea",
+      "request": {
+        "method": "POST",
+        "header": [{"key":"Content-Type","value":"application/json"}],
+        "url": "{{baseUrl}}/api/tareas",
+        "body": {"mode":"raw","raw": "{ \"descripcion\": \"Tarea desde Postman\" }"}
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status 201 Created\", () => { pm.response.to.have.status(201); });",
+              "pm.test(\"Respuesta contiene id numérico\", () => { const b = pm.response.json(); pm.expect(b).to.have.property('id'); pm.collectionVariables.set('tareaId', b.id); });",
+              "pm.test(\"Tiempo de respuesta < 500ms\", () => { pm.expect(pm.response.responseTime).to.be.below(500); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET obtener tarea",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/tareas/{{tareaId}}"
+      }
+    },
+    {
+      "name": "PATCH completar tarea",
+      "request": {
+        "method": "PATCH",
+        "url": "{{baseUrl}}/api/tareas/{{tareaId}}"
+      }
+    },
+    {
+      "name": "GET verificar completada",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/tareas/{{tareaId}}"
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [ "pm.test(\"Tarea marcada como completada\", () => { const b = pm.response.json(); pm.expect(b).to.have.property('completada'); pm.expect(b.completada).to.be.true; });" ] } }
+      ]
+    },
+    {
+      "name": "GET tarea inexistente",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/tareas/999999"
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [ "pm.test(\"Status 404\", () => { pm.response.to.have.status(404); });" ] } }
+      ]
+    }
+  ]
+}
